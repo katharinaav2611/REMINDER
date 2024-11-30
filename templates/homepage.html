@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel = "stylesheet" href="{{url_for('static', filename='homepage.css')}}"/>
+    <title>Document</title>
+</head>
+<body>
+    <div class="header">
+        <div class="header_button_container">
+            <button class="header_button" id="logout_button"><img class="user_icon" src="{{url_for('static', filename='assets/logouticon.png')}}"></button> 
+        </div> 
+        <div class="username_display_container">
+            <img class="user_icon" src="{{url_for('static', filename='assets/usericon.png')}}">
+            <input type="text" class="username_display" id="username_display" value="{{username}}" disabled>
+        </div>
+    </div>
+
+    <div class="features_container">
+        <div class="leftside_container">
+            <div class="listevent_header">
+                <h1 class="listevent_title" id="listevent_title">List Events</h1>
+            </div>
+            <div class="listevent_container" id="listevent_container"></div>
+        </div>
+
+        <div class="rightside_container">
+            <div class="calendar_header">
+                <h1 class="calendar_month" id="calendar_month">November</h1>
+                <div class="calendar_button_container">
+                    <button class="calendar_button" id="calendar_previous_button"><</button> 
+                    <button class="calendar_button" id="calendar_next_button">></button>
+                </div> 
+            </div>
+            <div class="calendar_day_container">
+                <p class="calendar_day">Minggu</p>
+                <p class="calendar_day">Senin</p>
+                <p class="calendar_day">Selasa</p>
+                <p class="calendar_day">Rabu</p>
+                <p class="calendar_day">Kamis</p>
+                <p class="calendar_day">Jumat</p>
+                <p class="calendar_day">Sabtu</p>
+            </div>
+            <div class="calendar_date_container" id="calendar_date_container"></div>
+        </div>
+
+        <form class="alert_container" id="addevent_container" style="display:none;" action="{{url_for('homepage')}}" method="post">
+            <h1 class="alert_title">ADD EVENT</h1>
+            <h1 class="alert_date" id="addevent_date_text"></h1>
+            <input type="text" style="display:none;" id="addevent_date" name="addevent_date" required>
+            <input type="text" class="alert_input" id="addevent_title" name="addevent_title" placeholder="title" required>
+            <input type="text" class="alert_input" id="addevent_content" name="addevent_content" placeholder="content" required>
+            <div class="alert_button_container">
+                <button class="alert_button" id="addevent_cancel_button">CANCEL</button>
+                <input type="submit" class="alert_button" name="add_event" value="ADD">
+            </div>
+        </form>
+
+        <form class="alert_container" id="adduser_container" style="display:none;" action="{{url_for('homepage')}}" method="post">
+            <h1 class="alert_title">ADD USER</h1>
+            <input type="text" class="alert_input" id="adduser_name" name="adduser_name" placeholder="name" required>
+            <input type="text" style="display:none;" id="adduser_date" name="adduser_date" required>
+            <input type="text" style="display:none;" id="adduser_title" name="adduser_title" required>
+            <input type="text" style="display:none;" id="adduser_content" name="adduser_content" required>
+            <div class="alert_button_container">
+                <button class="alert_button" id="adduser_cancel_button">CANCEL</button>
+                <input type="submit" class="alert_button" name="add_user" value="ADD">
+            </div>
+        </form>
+
+        <form class="alert_container" id="showevent_container" style="display:none;" action="{{url_for('homepage')}}" method="post">
+            <h1 class="alert_title" id="showevent_title_text"></h1>
+            <h1 class="alert_date" id="showevent_date_text"></h1>
+            <p class="alert_text" id="showevent_content_text"></p>
+            <input type="text" style="display:none;" id="showevent_date" name="showevent_date" required>
+            <input type="text" style="display:none;" id="showevent_title" name="showevent_title" required>
+            <input type="text" style="display:none;" id="showevent_content" name="showevent_content" required>
+            <div class="alert_button_container">
+                <button class="alert_button" id="showevent_close_button">CLOSE</button>
+                <input type="submit" class="alert_button" name="delete_event" value="DELETE">
+                <button class="alert_button" id="showevent_adduser_button">ADD USER</button>
+            </div>
+        </form>
+        
+    </div>
+
+    <script>
+        const logout_button = document.getElementById('logout_button')
+        const username_display = document.getElementById('username_display')
+
+        const calendar_month = document.getElementById('calendar_month');
+        const calendar_date_container = document.getElementById('calendar_date_container');
+        const calendar_previous_button = document.getElementById('calendar_previous_button');
+        const calendar_next_button = document.getElementById('calendar_next_button');
+
+        const listevent_container = document.getElementById('listevent_container')
+
+        const addevent_container = document.getElementById('addevent_container')
+        const addevent_date_text = document.getElementById('addevent_date_text')
+        const addevent_date = document.getElementById('addevent_date')
+        const addevent_title = document.getElementById('addevent_title')
+        const addevent_content = document.getElementById('addevent_content')
+        const addevent_cancel_button = document.getElementById('addevent_cancel_button')
+
+        const adduser_container = document.getElementById('adduser_container')
+        const adduser_name = document.getElementById('adduser_name')
+        const adduser_date = document.getElementById('adduser_date')
+        const adduser_title = document.getElementById('adduser_title')
+        const adduser_content = document.getElementById('adduser_content')
+        const adduser_cancel_button = document.getElementById('adduser_cancel_button')
+
+        const showevent_container = document.getElementById('showevent_container')
+        const showevent_title_text = document.getElementById('showevent_title_text')
+        const showevent_date_text = document.getElementById('showevent_date_text')
+        const showevent_content_text = document.getElementById('showevent_content_text')
+        const showevent_date = document.getElementById('showevent_date')
+        const showevent_title = document.getElementById('showevent_title')
+        const showevent_content = document.getElementById('showevent_content')
+        const showevent_close_button = document.getElementById('showevent_close_button')
+        const showevent_adduser_button = document.getElementById('showevent_adduser_button')
+
+        function calendar_grid_button(date_id){
+            return document.getElementById(date_id);
+        }
+
+        function list_event_button(event_id){
+            return document.getElementById(event_id);
+        }
+
+        function list_event_content(content_id){
+            return document.getElementById(content_id);
+        }
+
+        logout_button.onclick = function(){
+            window.location.href = '../'
+        }
+
+        let events = {{ events | tojson }}
+
+        let alerted = false;
+        let current_date = new Date();
+
+        function update_calender() {
+            const current_year = current_date.getFullYear();
+            const current_month = current_date.getMonth();
+
+            const first_day = new Date(current_year, current_month, 1);
+            const last_day = new Date(current_year, current_month + 1, 0);
+            const total_day = last_day.getDate();
+            const first_day_index = first_day.getDay();
+            const last_day_index = last_day.getDay();
+
+            const month_year_string = current_date.toLocaleString('default', { month: 'long', year: 'numeric' });
+            calendar_month.textContent = month_year_string;
+
+            let datesHTML = '';
+            let dates_id = [];
+            let index = 0
+
+            // Hari dari bulan sebelumnya
+            for (let i = first_day_index; i > 0; i--) {
+                const date = new Date(current_year, current_month, 1 - i);
+                let date_id = date.toLocaleString('default', {day:'numeric',month: 'numeric', year: 'numeric' })
+                datesHTML += `
+                    <div class="calendar_grid calendar_inactive" id="${date_id}">
+                        <p class="calendar_date">${date.getDate()}</p>
+                    </div>`;
+            }
+
+            // Hari dalam bulan saat ini
+            for (let i = 1; i <= total_day; i++) {
+                const date = new Date(current_year, current_month, i);
+                let date_id = date.toLocaleString('default', {day:'numeric',month: 'numeric', year: 'numeric' })
+                if (date.toDateString() === new Date().toDateString()) {
+                    datesHTML += `
+                        <button class="calendar_grid" id="${date_id}">
+                            <p class="calendar_date">${i}</p>
+                            <p class="calendar_text">TODAY</p>
+                        </button>`;
+                } else{
+                    datesHTML += `
+                        <button class="calendar_grid" id="${date_id}">
+                            <p class="calendar_date">${i}</p>
+                        </button>`;
+                }
+
+                dates_id[index] = `${date_id}`;
+                index ++;
+            }
+
+            // Hari dari bulan berikutnya
+            for (let i = 1; i <= 6 - last_day_index; i++) {
+                const date = new Date(current_year, current_month + 1, i);
+                let date_id = date.toLocaleString('default', {day:'numeric',month: 'numeric', year: 'numeric' })
+                datesHTML += `
+                    <div class="calendar_grid calendar_inactive" id="${date_id}">
+                        <p class="calendar_date">${date.getDate()}</p>
+                    </div>`;
+            }
+
+            calendar_date_container.innerHTML = datesHTML;
+
+            for (let i = 0; i < index; i++){
+                calendar_grid_button(dates_id[i]).onclick = function(){
+                    if (!(alerted) && is_available(dates_id[i])){
+                        add_event(dates_id[i]);
+                    }
+                }
+            }
+        }
+
+        function update_listevent(){
+            let eventsHTML = '';
+            for (let i = 0; i < events.length; i++){
+                eventsHTML += 
+                    `<button class="event" id="event${events[i][1]}">
+                        <p class="event_date">${events[i][1]}</p>
+                        <h1 class="event_title">${events[i][2]}</h1>
+                    </button>`
+            }
+
+            listevent_container.innerHTML = eventsHTML;
+
+            for (let i = 0; i < events.length; i++){
+                list_event_button(`event${events[i][1]}`).onclick = function(){
+                    show_event(events[i][2],events[i][1],events[i][3])
+                }
+            }
+        }
+
+        function is_available(date_id){
+            if (new Date(date_id) >= new Date()){
+                return true;
+            }
+            return false;
+        }
+
+        function show_event(title,date,content){
+            alerted = true;
+            showevent_container.style.display = 'flex';
+            showevent_title_text.textContent = title;
+            showevent_date_text.textContent = date;
+            showevent_content_text.textContent = content;
+            showevent_date.value = date;
+            showevent_title.value = title;
+            showevent_content.value = content;
+
+            showevent_close_button.onclick = function(){
+                alerted = false;
+                showevent_date.value = '';
+                showevent_title.value = '';
+                showevent_content.value = '';
+                showevent_container.style.display = 'none';
+            }
+
+            showevent_adduser_button.onclick = function(){
+                alerted = false
+                showevent_date.value = '';
+                showevent_title.value = '';
+                showevent_content.value = '';
+                showevent_container.style.display = 'none';
+                add_user(title,date,content)
+            }
+        }
+
+        function add_user(title,date,content){
+            alerted = true;
+            adduser_container.style.display = 'flex';
+            adduser_date.value = date;
+            adduser_title.value = title;
+            adduser_content.value = content;
+
+            adduser_cancel_button.onclick = function(){
+                alerted = false;
+                adduser_name.value = '';
+                adduser_date.value = '';
+                adduser_title.value = '';
+                adduser_content.value = '';
+                adduser_container.style.display = 'none';
+                show_event(title,date,content)
+            }
+        }
+
+        function add_event(date_id){
+            alerted = true;
+            addevent_container.style.display = 'flex';
+            addevent_date_text.textContent = date_id;
+            addevent_date.value = date_id;
+
+            addevent_cancel_button.onclick = function(){
+                alerted = false;
+                addevent_date.value = '';
+                addevent_title.value = '';
+                addevent_content.value = '';
+                addevent_container.style.display = 'none';
+            }
+        }
+
+        calendar_previous_button.onclick = function () {
+            current_date.setMonth(current_date.getMonth() - 1);
+            update_calender();
+        };
+        calendar_next_button.onclick = function () {
+            current_date.setMonth(current_date.getMonth() + 1);
+            update_calender();
+        };
+
+        update_listevent();
+        update_calender();
+
+    </script>
+</body>
+
+
+</html>
